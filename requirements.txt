@@ -1,0 +1,4 @@
+flask
+requests
+pymupdf
+serpapi==0.1.5
