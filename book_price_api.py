@@ -3,7 +3,7 @@ import requests
 import fitz  # PyMuPDF
 import os
 
-SERPAPI_API_KEY = "TA_CLE_SERPAPI"
+SERPAPI_API_KEY ="c037fd318028673fd26d308e1fafb329a0eaf03e90b4882654a4e909fb850fef"
 
 app = Flask(__name__)
 
