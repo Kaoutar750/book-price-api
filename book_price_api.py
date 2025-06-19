@@ -1,27 +1,47 @@
-import fitz  # PyMuPDF
-import requests
-import os
 from flask import Flask, request, jsonify
+import requests
+import fitz  # PyMuPDF
+import os
 
-# Ta clé SerpAPI ici
-SERPAPI_API_KEY = "c037fd318028673fd26d308e1fafb329a0eaf03e90b4882654a4e909fb850fef"
+SERPAPI_API_KEY = "TA_CLE_SERPAPI"
 
 app = Flask(__name__)
 
-def search_pdf_manual(book_title, language):
-    query = f"{book_title} filetype:pdf {language}"
-    params = {
-        "q": query,
+def search_pdf_manual(title, language):
+    base_url = "https://serpapi.com/search"
+
+    # Étape 1 : Recherche sur les plateformes fiables
+    query_priority = f"{title} filetype:pdf site:pdfdrive.com OR site:z-lib.io OR site:pdfcoffee.com"
+    params_priority = {
+        "q": query_priority,
         "engine": "google",
         "api_key": SERPAPI_API_KEY,
+        "hl": language,
         "num": 10
     }
-    response = requests.get("https://serpapi.com/search", params=params)
-    results = response.json()
-    for result in results.get("organic_results", []):
-        link = result.get("link", "")
+    response = requests.get(base_url, params=params_priority).json()
+    results = response.get("organic_results", [])
+    for r in results:
+        link = r.get("link", "")
         if link.lower().endswith(".pdf"):
             return link
+
+    # Étape 2 : Recherche générale si rien trouvé
+    query_backup = f"{title} filetype:pdf"
+    params_backup = {
+        "q": query_backup,
+        "engine": "google",
+        "api_key": SERPAPI_API_KEY,
+        "hl": language,
+        "num": 10
+    }
+    response = requests.get(base_url, params=params_backup).json()
+    results = response.get("organic_results", [])
+    for r in results:
+        link = r.get("link", "")
+        if link.lower().endswith(".pdf"):
+            return link
+
     return None
 
 def analyze_pdf(pdf_url):
@@ -87,3 +107,5 @@ def analyze_book():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
+
+
